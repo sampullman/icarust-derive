@@ -25,8 +25,9 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
         impl Actor for #name {
-            fn tag(&self) -> ActorType {
-                return self.actor.tag
+
+            fn draw(&self, ctx: &mut Context, world_coords: (u32, u32)) {
+                self.actor.asset.draw(ctx, world_coords, self.position(), self.facing())
             }
 
             fn position(&self) -> Point2 {
@@ -82,6 +83,47 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
             }
             fn set_life(&mut self, life: f32) {
                 self.actor.life = life
+            }
+        }
+    }
+}
+
+#[proc_macro_derive(Widget)]
+pub fn widget(input: TokenStream) -> TokenStream {
+    // Construct a string representation of the type definition
+    let s = input.to_string();
+    
+    // Parse the string representation
+    let ast = syn::parse_derive_input(&s).unwrap();
+
+    // Build the impl
+    let gen = impl_widget(&ast);
+    
+    // Return the generated impl
+    gen.parse().unwrap()
+}
+
+fn impl_widget(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl Actor for #name {
+
+            fn draw(&self, ctx: &mut Context, world_coords: (u32, u32)) {
+                self.base.asset.draw(ctx, world_coords, self.position(), self.facing())
+            }
+
+            fn position(&self) -> Point2 {
+                return self.base.pos
+            }
+            fn set_position(&mut self, pos: Point2) {
+                self.base.pos = pos
+            }
+
+            fn facing(&self) -> f32 {
+                return self.base.facing
+            }
+            fn set_facing(&mut self, facing: f32) {
+                self.base.facing = facing
             }
         }
     }
