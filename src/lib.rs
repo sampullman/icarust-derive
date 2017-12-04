@@ -106,7 +106,7 @@ pub fn widget(input: TokenStream) -> TokenStream {
 fn impl_widget(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl Actor for #name {
+        impl Widget for #name {
 
             fn draw(&self, ctx: &mut Context, world_coords: (u32, u32)) {
                 self.base.asset.draw(ctx, world_coords, self.position(), self.facing())
@@ -124,6 +124,13 @@ fn impl_widget(ast: &syn::DeriveInput) -> quote::Tokens {
             }
             fn set_facing(&mut self, facing: f32) {
                 self.base.facing = facing
+            }
+
+            fn width(&self) -> u32 {
+                self.base.asset.text.width()
+            }
+            fn height(&self) -> u32 {
+                self.base.asset.text.height()
             }
         }
     }
