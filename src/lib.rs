@@ -26,63 +26,59 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl Actor for #name {
 
-            fn draw(&self, ctx: &mut Context, world_coords: (u32, u32)) {
-                self.actor.asset.draw(ctx, world_coords, self.position(), self.facing())
-            }
-
             fn position(&self) -> Point2 {
-                return self.actor.pos
+                return self.base.pos
             }
             fn set_position(&mut self, pos: Point2) {
-                self.actor.pos = pos
+                self.base.pos = pos
             }
 			fn add_position(&mut self, pos: Point2) {
-				self.actor.pos.x += pos.x;
-				self.actor.pos.y += pos.y
+				self.base.pos.x += pos.x;
+				self.base.pos.y += pos.y
 			}
             fn x(&self) -> f32 {
-                return self.actor.pos.x
+                return self.base.pos.x
             }
             fn y(&self) -> f32 {
-                return self.actor.pos.y
+                return self.base.pos.y
             }
             fn set_x(&mut self, x: f32) {
-                self.actor.pos.x = x
+                self.base.pos.x = x
             }
             fn set_y(&mut self, y: f32) {
-                self.actor.pos.y = y
+                self.base.pos.y = y
             }
 
             fn velocity(&self) -> Vector2 {
-                return self.actor.velocity.clone()
+                return self.base.velocity.clone()
             }
             fn set_velocity_xy(&mut self, x: f32, y: f32) {
-                self.actor.velocity.x = x;
-                self.actor.velocity.y = y
+                self.base.velocity.x = x;
+                self.base.velocity.y = y
             }
             fn set_velocity(&mut self, vel: Vector2) {
-                self.actor.velocity = vel;
+                self.base.velocity = vel;
             }
 			fn rvel(&self) -> f32 {
-				return self.actor.rvel
+				return self.base.rvel
 			}
 
             fn facing(&self) -> f32 {
-                return self.actor.facing
+                return self.base.facing
             }
             fn set_facing(&mut self, facing: f32) {
-                self.actor.facing = facing
+                self.base.facing = facing
             }
 
             fn bbox_size(&self) -> f32 {
-                return self.actor.bbox_size
+                return self.base.bbox_size
             }
 
             fn life(&self) -> f32 {
-                return self.actor.life
+                return self.base.life
             }
             fn set_life(&mut self, life: f32) {
-                self.actor.life = life
+                self.base.life = life
             }
         }
     }
@@ -108,10 +104,6 @@ fn impl_widget(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl Widget for #name {
 
-            fn draw(&self, ctx: &mut Context, world_coords: (u32, u32)) {
-                self.base.asset.draw(ctx, world_coords, self.position(), self.facing())
-            }
-
             fn position(&self) -> Point2 {
                 return self.base.pos
             }
@@ -131,6 +123,33 @@ fn impl_widget(ast: &syn::DeriveInput) -> quote::Tokens {
             }
             fn height(&self) -> u32 {
                 self.base.asset.text.height()
+            }
+        }
+    }
+}
+
+#[proc_macro_derive(Drawable)]
+pub fn drawable(input: TokenStream) -> TokenStream {
+    // Construct a string representation of the type definition
+    let s = input.to_string();
+    
+    // Parse the string representation
+    let ast = syn::parse_derive_input(&s).unwrap();
+
+    // Build the impl
+    let gen = impl_drawable(&ast);
+    
+    // Return the generated impl
+    gen.parse().unwrap()
+}
+
+fn impl_drawable(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl Drawable for #name {
+
+            fn draw(&self, ctx: &mut Context, world_coords: (u32, u32)) {
+                self.base.asset.draw(ctx, world_coords, self.position(), self.facing())
             }
         }
     }
