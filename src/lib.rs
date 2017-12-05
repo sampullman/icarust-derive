@@ -26,8 +26,21 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl Actor for #name {
 
+            fn width(&self) -> f32 {
+                self.base.asset.width() as f32
+            }
+            fn height(&self) -> f32 {
+                self.base.asset.height() as f32
+            }
+            fn half_width(&self) -> f32 {
+                self.base.asset.half_width()
+            }
+            fn half_height(&self) -> f32 {
+                self.base.asset.half_height()
+            }
+
             fn position(&self) -> Point2 {
-                return self.base.pos
+                self.base.pos
             }
             fn set_position(&mut self, pos: Point2) {
                 self.base.pos = pos
@@ -37,10 +50,10 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
 				self.base.pos.y += pos.y
 			}
             fn x(&self) -> f32 {
-                return self.base.pos.x
+                self.base.pos.x
             }
             fn y(&self) -> f32 {
-                return self.base.pos.y
+                self.base.pos.y
             }
             fn set_x(&mut self, x: f32) {
                 self.base.pos.x = x
@@ -50,7 +63,7 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
             }
 
             fn velocity(&self) -> Vector2 {
-                return self.base.velocity.clone()
+                self.base.velocity.clone()
             }
             fn set_velocity_xy(&mut self, x: f32, y: f32) {
                 self.base.velocity.x = x;
@@ -149,6 +162,47 @@ fn impl_drawable(ast: &syn::DeriveInput) -> quote::Tokens {
         impl Drawable for #name {
 
             fn draw(&self, ctx: &mut Context, world_coords: (u32, u32)) {
+                self.base.asset.draw(ctx, world_coords, self.position(), self.facing())
+            }
+        }
+    }
+}
+
+#[proc_macro_derive(WrappedDrawable)]
+pub fn wrapped_drawable(input: TokenStream) -> TokenStream {
+    // Construct a string representation of the type definition
+    let s = input.to_string();
+    
+    // Parse the string representation
+    let ast = syn::parse_derive_input(&s).unwrap();
+
+    // Build the impl
+    let gen = impl_wrapped_drawable(&ast);
+    
+    // Return the generated impl
+    gen.parse().unwrap()
+}
+
+fn impl_wrapped_drawable(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl Drawable for #name {
+
+            fn draw(&self, ctx: &mut Context, world_coords: (u32, u32)) {
+                let screen_right = world_coords.0 as f32;
+                let pos = self.position();
+
+                if pos.x < self.half_width() {
+
+                    let wrap_pos = Point2::new(pos.x + screen_right, pos.y);
+                    self.base.asset.draw(ctx, world_coords, wrap_pos, self.facing());
+
+                } else if pos.x > (screen_right - self.half_width()) {
+
+                    let wrap_pos = Point2::new(pos.x - screen_right, pos.y);
+                    self.base.asset.draw(ctx, world_coords, wrap_pos, self.facing());
+                }
+
                 self.base.asset.draw(ctx, world_coords, self.position(), self.facing())
             }
         }
