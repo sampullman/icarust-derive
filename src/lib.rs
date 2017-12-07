@@ -26,6 +26,13 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl Actor for #name {
 
+            fn alive(&self) -> bool {
+                self.base.alive
+            }
+            fn kill(&mut self) {
+                self.base.alive = false
+            }
+
             fn width(&self) -> f32 {
                 self.base.asset.width() as f32
             }
@@ -85,13 +92,6 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
 
             fn bbox_size(&self) -> f32 {
                 return self.base.bbox_size
-            }
-
-            fn life(&self) -> f32 {
-                return self.base.life
-            }
-            fn set_life(&mut self, life: f32) {
-                self.base.life = life
             }
         }
     }
