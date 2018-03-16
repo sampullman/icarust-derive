@@ -45,6 +45,9 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
             fn half_height(&self) -> f32 {
                 self.base.asset.half_height()
             }
+            fn center(&self) -> Point2 {
+                Point2::new(self.x() + self.half_height(), self.y() + self.half_height())
+            }
 
             fn position(&self) -> Point2 {
                 self.base.pos
