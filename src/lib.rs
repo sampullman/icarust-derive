@@ -164,8 +164,8 @@ fn impl_drawable(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl Drawable for #name {
 
-            fn draw(&self, ctx: &mut Context, world_coords: (u32, u32)) {
-                self.base.asset.draw(ctx, world_coords, self.position(), self.facing())
+            fn draw(&self, ctx: &mut Context, camera: &Camera) {
+                self.base.asset.draw(ctx, camera, self.position(), self.facing())
             }
         }
     }
@@ -191,22 +191,22 @@ fn impl_wrapped_drawable(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl Drawable for #name {
 
-            fn draw(&self, ctx: &mut Context, world_coords: (u32, u32)) {
-                let screen_right = world_coords.0 as f32;
+            fn draw(&self, ctx: &mut Context, camera: &Camera) {
+                let screen_right = camera.world_width();
                 let pos = self.position();
 
                 if pos.x < self.half_width() {
 
                     let wrap_pos = Point2::new(pos.x + screen_right, pos.y);
-                    self.base.asset.draw(ctx, world_coords, wrap_pos, self.facing());
+                    self.base.asset.draw(ctx, camera, wrap_pos, self.facing());
 
                 } else if pos.x > (screen_right - self.half_width()) {
 
                     let wrap_pos = Point2::new(pos.x - screen_right, pos.y);
-                    self.base.asset.draw(ctx, world_coords, wrap_pos, self.facing());
+                    self.base.asset.draw(ctx, camera, wrap_pos, self.facing());
                 }
 
-                self.base.asset.draw(ctx, world_coords, self.position(), self.facing())
+                self.base.asset.draw(ctx, camera, self.position(), self.facing())
             }
         }
     }
