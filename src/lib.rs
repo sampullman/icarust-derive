@@ -1,4 +1,4 @@
-#![recursion_limit = "128"]
+#![recursion_limit = "1024"]
 extern crate proc_macro;
 #[macro_use]
 extern crate quote;
@@ -97,12 +97,12 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
             }
 
             fn physics_id(&self) -> PhysicsId {
-                self.physics_id
+                self.base.physics_id
             }
             fn add_to_world(&mut self, world: &mut CollisionWorld2, id: PhysicsId) {
-                self.physics_id = id;
-                let pos = Isometry2::new(Vector2::)
-                world.deferred_add(id, )
+                self.base.physics_id = id;
+                //let pos = Isometry2::new(Vector2::)
+                //world.deferred_add(id, )
             }
         }
     }
