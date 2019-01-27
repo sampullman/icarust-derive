@@ -82,18 +82,27 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
                 self.base.velocity = vel;
             }
 			fn rvel(&self) -> f32 {
-				return self.base.rvel
+				self.base.rvel
 			}
 
             fn facing(&self) -> f32 {
-                return self.base.facing
+                self.base.facing
             }
             fn set_facing(&mut self, facing: f32) {
                 self.base.facing = facing
             }
 
             fn bbox_size(&self) -> f32 {
-                return self.base.bbox_size
+                self.base.bbox_size
+            }
+
+            fn physics_id(&self) -> PhysicsId {
+                self.physics_id
+            }
+            fn add_to_world(&mut self, world: &mut CollisionWorld2, id: PhysicsId) {
+                self.physics_id = id;
+                let pos = Isometry2::new(Vector2::)
+                world.deferred_add(id, )
             }
         }
     }
