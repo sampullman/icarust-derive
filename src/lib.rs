@@ -1,6 +1,5 @@
 #![recursion_limit = "128"]
 extern crate proc_macro;
-extern crate syn;
 #[macro_use]
 extern crate quote;
 
@@ -140,6 +139,13 @@ fn impl_widget(ast: &syn::DeriveInput) -> quote::Tokens {
             fn height(&self) -> u32 {
                 self.base.asset.text.height()
             }
+
+            fn half_width(&self) -> f32 {
+                self.base.asset.text.width() as f32 / 2.0
+            }
+            fn half_height(&self) -> f32 {
+                self.base.asset.text.height() as f32 / 2.0
+            }
         }
     }
 }
@@ -165,7 +171,7 @@ fn impl_drawable(ast: &syn::DeriveInput) -> quote::Tokens {
         impl Drawable for #name {
 
             fn draw(&self, ctx: &mut Context, camera: &Camera) {
-                self.base.asset.draw(ctx, camera, self.position(), self.facing())
+                crate::util::draw_asset(ctx, &self.base.asset, self.position(), self.facing(), camera)
             }
         }
     }
@@ -198,15 +204,15 @@ fn impl_wrapped_drawable(ast: &syn::DeriveInput) -> quote::Tokens {
                 if pos.x < self.half_width() {
 
                     let wrap_pos = Point2::new(pos.x + screen_right, pos.y);
-                    self.base.asset.draw(ctx, camera, wrap_pos, self.facing());
+                    crate::util::draw_asset(ctx, &self.base.asset, wrap_pos, self.facing(), camera)
 
                 } else if pos.x > (screen_right - self.half_width()) {
 
                     let wrap_pos = Point2::new(pos.x - screen_right, pos.y);
-                    self.base.asset.draw(ctx, camera, wrap_pos, self.facing());
+                    crate::util::draw_asset(ctx, &self.base.asset, wrap_pos, self.facing(), camera)
                 }
 
-                self.base.asset.draw(ctx, camera, self.position(), self.facing())
+                crate::util::draw_asset(ctx, &self.base.asset, self.position(), self.facing(), camera)
             }
         }
     }

@@ -1,6 +1,7 @@
 [package]
 name = "icarust-derive"
 version = "0.1.0"
+edition = "2018"
 authors = ["Sam Pullman <sampullman@gmail.com>"]
 
 [lib]
