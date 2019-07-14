@@ -32,20 +32,20 @@ fn impl_actor(ast: &syn::DeriveInput) -> quote::Tokens {
                 self.base.alive = false
             }
 
-            fn width(&self) -> f32 {
-                self.base.asset.width() as f32
+            fn width(&self, ctx: &mut Context) -> f32 {
+                self.base.asset.width(ctx) as f32
             }
-            fn height(&self) -> f32 {
-                self.base.asset.height() as f32
+            fn height(&self, ctx: &mut Context) -> f32 {
+                self.base.asset.height(ctx) as f32
             }
-            fn half_width(&self) -> f32 {
-                self.base.asset.half_width()
+            fn half_width(&self, ctx: &mut Context) -> f32 {
+                self.base.asset.half_width(ctx)
             }
-            fn half_height(&self) -> f32 {
-                self.base.asset.half_height()
+            fn half_height(&self, ctx: &mut Context) -> f32 {
+                self.base.asset.half_height(ctx)
             }
-            fn center(&self) -> Point2 {
-                Point2::new(self.x() + self.half_height(), self.y() + self.half_height())
+            fn center(&self, ctx: &mut Context) -> Point2 {
+                Point2::new(self.x() + self.half_height(ctx), self.y() + self.half_height(ctx))
             }
 
             fn position(&self) -> Point2 {
